@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Jogo da Minhoquinha</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    canvas {
+      border: 2px solid #000;
+      background-color: #ddd;
+    }
+    #gameCanvas {
+      cursor: none; /* Oculta o cursor quando está sobre o canvas */
+    }
+  </style>
+</head>
+
+<body>
+  <div style="display:none;">
+    <img id="apple" width="40" height="20" src="/src/apple.png">
+    <img id="tnt" width="20" height="20" src="/src/tnt.png">
+    <img id="player" width="20" height="20" src="/src/player.png">
+    <img id="diamond" width="20" height="20" src="/src/diamond.png">
+    <img id="mira" width="40" height="40" src="/src/mira.png">
+  </div>
+  <main>
+    <div style="padding: 10px;">
+      <canvas id="gameCanvas" width="700" height="700"></canvas>
+    </div>
+    
+    <h3> Sua Pontucao <span id="score">0</span></h3>
+
+    <ul id="players"></ul>
+  </main>
+
+</body>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/game.js"></script>
+</html>
