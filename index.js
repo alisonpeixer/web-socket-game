@@ -9,6 +9,11 @@ const io = new Server(server);
 const players = [];
 let fruits  = [];
 
+const fruitDados = {
+  width: 20,
+  height: 20
+}
+
 
 function generateSimpleUUID() {
   const letters = 'abcdefghijklmnopqrstuvwxyz';
@@ -78,20 +83,29 @@ io.on('connection', (socket) => {
 
 
   socket.on('player fruit colection', (dados)=> {
+
+
+    
+
     const fruitColection = dados['area'];
     const player = dados['player'];
 
-    player.score++;
+    const dx = Math.abs(player.x - fruitColection.x);
+    const dy = Math.abs(player.y - fruitColection.y);
 
-    socket.broadcast.emit('api player score update', {
-      id: socket.id,
-      ...player
-    });
+    if (
+      dx < player.width / 2 + fruitDados.width / 2 &&
+      dy < player.height / 2 + fruitDados.height / 2
+    ) {
 
-    
-    fruits = fruits.filter((fruit) => fruit.id !== fruitColection['id'])
-    
-    io.emit('api spawn fruit', fruits);
+      player.score++;
+
+      fruits = fruits.filter((fruit) => fruit.id !== fruitColection['id']);
+
+     // io.emit('api player score update', player);
+
+      socket.emit("api player fruit colection", {player, fruits});
+    }
 
   })
 

@@ -1,6 +1,6 @@
 const socket = io();
 const canvas = document.getElementById('gameCanvas');
-const score = document.getElementById('score');
+const scoreDiv = document.getElementById('score');
 const playerDiv = document.getElementById('players');
 const ctx = canvas.getContext('2d');
 
@@ -33,28 +33,24 @@ let players = [];
 
 const frutasSpawn = () => {
   for (const area of fruitDados.spwan) {
-
+  
     const dx = Math.abs(player.x - area.x);
     const dy = Math.abs(player.y - area.y);
-
+  
     if (
-      dx < player.width / 2 + fruitDados.width / 2 &&
-      dy < player.height / 2 + fruitDados.height / 2
+      dx < (player.width + fruitDados.width) / 3 &&
+      dy < (player.height + fruitDados.height) / 3
     ) {
-      new Audio("/src/orb.mp3").play();
-      fruitDados.spwan.splice(area, 1);
-      player.score++;
-      score.innerText = player.score;
-
-      socket.emit("player fruit colection", {player, area});
+      socket.emit("player fruit colection", { player, area });
     }
+  
     ctx.drawImage(apple, area.x, area.y, fruitDados.width, fruitDados.height);
   }
+  
 }
 
 
 const playersSpawn = () => {  
-  console.log(players)
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   for (const aPlayer of players) {
@@ -71,10 +67,12 @@ const playersSpawn = () => {
 
 
 const playersScore = () => { 
-  console.log(players);
   players.forEach(player => {
     playerDiv.innerHTML = `<li> ${player.id} SCORE => ${player.score}</li>`
   });
+
+  scoreDiv.innerText = `${player.score}`
+
 }
 
 canvas.addEventListener('mousemove', (e) => {
@@ -90,13 +88,20 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 socket.on('api connection', (data) => {
-  console.log(data)
   player.id = data['id'];
   fruitDados.spwan = data['fruits'];
   
   playersSpawn();
   console.log('Connected to the server');
 });
+
+
+socket.onClose(() => {
+  console.warn('Conexão perdida com o servidor.');
+  
+  setTimeout(() => socket.connect(), 3000);
+});
+
 
 socket.emit('player connected', player);
 
@@ -130,6 +135,24 @@ socket.on('api spawn fruit', (dados)=> {
 
   playersSpawn();
 })
+socket.on('api player fruit colection', (data) => {
+
+  const playerUpdate  = data['player'];
+  const fruitUpdate   = data['fruits'];
+
+  if (playerUpdate.id === player.id) {
+    player.score = playerUpdate.score;
+  } else {
+    players = players.map(player => player.id === playerUpdate.id? playerUpdate : player);
+  }
+
+  
+  fruitDados.spwan = fruitUpdate;
+
+  playersSpawn();
+  playersScore();
+
+});
 
 
 /// SCORE UPDATE
